@@ -1,0 +1,165 @@
+﻿@model CarBooking.ViewModels.Verify2FALoginViewModel
+
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #F4F6FA, #EEF1F7);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 35px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .otp-box {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .otp-input {
+        width: 48px;
+        height: 55px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        border-radius: 10px;
+        border: 2px solid #D6D6D6;
+        background: #F1F3F7;
+        outline: none;
+        transition: 0.2s;
+    }
+
+        .otp-input:focus {
+            border-color: #D34E4E;
+            background: #fff;
+            box-shadow: 0 0 6px rgba(211,78,78,0.35);
+        }
+
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        background-color: #D34E4E;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-top: 10px;
+    }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .helper-text {
+        font-size: 12px;
+        color: #888;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="login-card">
+
+        <h2 class="login-title">Two-Factor Authentication</h2>
+        <p class="login-subtitle">
+            Enter the 6-digit code from Google Authenticator
+        </p>
+
+        <form asp-action="Verify2FALogin" method="post" id="otpForm">
+
+            <input asp-for="Email" type="hidden" />
+            <input asp-for="Code" type="hidden" id="otpCode" />
+
+            <div class="otp-box">
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+            </div>
+
+            <span asp-validation-for="Code" class="text-danger"></span>
+
+            <button type="submit" class="btn-login">
+                Verify & Login
+            </button>
+        </form>
+        <a asp-action="Forgot2FA"
+           style="font-size:13px; color:#D34E4E; font-weight:600;">
+            Forgot Google Authenticator?
+        </a>
+
+        <div class="helper-text">
+            Code refreshes every 30 seconds
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll(".otp-input");
+    const hiddenInput = document.getElementById("otpCode");
+
+    inputs.forEach((input, index) => {
+
+        input.addEventListener("input", e => {
+            input.value = input.value.replace(/[^0-9]/g, "");
+            if (input.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            updateHidden();
+        });
+
+        input.addEventListener("keydown", e => {
+            if (e.key === "Backspace" && !input.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener("paste", e => {
+            e.preventDefault();
+            const paste = e.clipboardData.getData("text").replace(/\D/g, "");
+            paste.split("").slice(0, 6).forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
+            });
+            updateHidden();
+        });
+    });
+
+    function updateHidden() {
+        hiddenInput.value = Array.from(inputs).map(i => i.value).join("");
+    }
+</script>

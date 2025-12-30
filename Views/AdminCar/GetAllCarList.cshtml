@@ -1,0 +1,249 @@
+﻿@model IEnumerable<CarBooking.Models.CarDetail>
+
+@{
+    ViewData["Title"] = "Car List";
+    var userIsAdmin = User.IsInRole("Admin");
+    var userIsUser = User.IsInRole("User");
+}
+
+<style>
+    .page-wrapper {
+        padding: 20px 30px;
+        background: #F4F6FA;
+        animation: fadeIn .4s ease;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        border-left: 6px solid #D34E4E;
+        padding-left: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-add {
+        background: #D34E4E !important;
+        color: #fff !important;
+        font-weight: 600;
+        padding: 10px 22px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        transition: .2s ease-in-out;
+    }
+
+        .btn-add:hover {
+            background: #b83f3f !important;
+            transform: translateY(-2px);
+        }
+
+    .car-card {
+        background: white;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+    }
+
+    table.dataTable {
+        border-collapse: separate !important;
+        border-spacing: 0 12px !important;
+    }
+
+        table.dataTable thead {
+            background: #D34E4E;
+            color: white;
+            font-weight: 600;
+        }
+
+            table.dataTable thead th {
+                padding: 12px;
+            }
+
+        table.dataTable tbody tr {
+            background: #ffffff !important;
+            border-radius: 12px;
+            box-shadow: 0px 3px 10px rgba(0,0,0,0.05);
+            transition: .2s;
+        }
+
+            table.dataTable tbody tr:hover {
+                background: #fff5f5 !important;
+                transform: scale(1.01);
+            }
+
+        table.dataTable tbody td {
+            padding: 15px !important;
+            vertical-align: middle;
+        }
+
+    .btn-action-warning {
+        background: #D34E4E !important;
+        border: none !important;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .btn-action-danger {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .btn-view {
+        background: #D34E4E !important;
+        border: none !important;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    .btn-action-book {
+        background: #D34E4E !important;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">Car List</h2>
+
+    <div class="d-flex justify-content-end mb-2">
+        @if (userIsAdmin)
+        {
+            <a class="btn btn-add" href="/AdminCar/AddEditCar">+ Add New Car</a>
+        }
+    </div>
+
+    <input type="hidden" id="SuccessMsg" value="@TempData["Success"]" />
+    <input type="hidden" id="CarCreatedMsg" value="@TempData["CarCreated"]" />
+    <input type="hidden" id="CarUpdatedMsg" value="@TempData["CarUpdated"]" />
+    <input type="hidden" id="Login" value="@TempData["Login"]" />
+
+    <div class="car-card mt-3">
+        <table id="carTable" class="table nowrap w-100"></table>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            const userIsAdmin = @(userIsAdmin.ToString().ToLower());
+            const userIsUser = @(userIsUser.ToString().ToLower());
+
+            var table = $('#carTable').DataTable({
+                processing: true,
+                serverSide: true,
+                autoWidth: true,
+                scrollX: true,
+                searching: true,
+                lengthMenu: [10, 25, 50, 100],
+
+                ajax: {
+                    url: "/AdminCar/GetAllCarList",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: function (d) {
+                        return JSON.stringify({
+                            Draw: d.draw,
+                            Start: d.start,
+                            Length: d.length,
+                            Search: { Value: d.search.value },
+                            Columns: d.columns.map(function (col) {
+                                return {
+                                    Field: col.data,
+                                    IsSearchable: col.searchable,
+                                    IsSortable: col.orderable,
+                                    Sort: d.order.find(o => o.column == d.columns.indexOf(col)) ? {
+                                        Direction: d.order.find(o => o.column == d.columns.indexOf(col)).dir === "asc" ? 0 : 1
+                                    } : null,
+                                    Search: { Value: col.search.value }
+                                };
+                            })
+                        });
+                    },
+                    dataSrc: function (json) {
+                        return json.data;
+                    }
+                },
+
+                columns: [
+                    { data: "carName", title: "Car Name" },
+                    { data: "carNumber", title: "Car Number" },
+
+                    {
+                        data: "registerDate",
+                        title: "Register Date",
+                        render: function (data) { return formatDateToISO(data); }
+                    },
+                    {
+                        data: "pucexpireDate",
+                        title: "PUC Expiry Date",
+                        render: function (data) { return formatDateToISO(data); }
+                    },
+                    {
+                        data: "insuranceDate",
+                        title: "Insurance Date",
+                        render: function (data) { return formatDateToISO(data); }
+                    },
+
+                    { data: "pricePerDay", title: "Price Per Day" },
+
+                    {
+                        data: "carId",
+                        title: "Actions",
+                        render: function (data) {
+                            if (userIsAdmin) {
+                                return `
+                                    <a href='/AdminCar/AddEditCar/${data}' class='btn btn-action-warning btn-sm'>Edit</a>
+                                    <button class='btn btn-action-danger btn-danger btn-sm btnDeleteCar' data-id='${data}'>Delete</button>
+                                `;
+                            } else {
+                                        return `
+            <a href='/CarBooking/CarBooking?carId=${data}' class='btn btn-view btn-sm'>Book</a>
+        `;
+
+                             
+                            }
+                        },
+                        orderable: false
+                    }
+                ]
+            });
+        });
+
+        function formatDateToISO(dateString) {
+            if (!dateString) return "";
+            if (dateString.includes('T')) return dateString.split('T')[0];
+            return dateString;
+        }
+    </script>
+}

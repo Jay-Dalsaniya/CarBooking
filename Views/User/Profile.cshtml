@@ -1,0 +1,214 @@
+﻿@model CarBooking.ViewModels.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #F4F6FA, #EEF1F7);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-card {
+        width: 100%;
+        max-width: 750px;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 35px rgba(0,0,0,0.1);
+        position: relative;
+        animation: fadeIn .4s ease;
+    }
+
+        .profile-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #D34E4E, #ff7a7a);
+            border-radius: 20px 20px 0 0;
+        }
+
+    .profile-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        margin-bottom: 8px;
+    }
+
+    .profile-subtitle {
+        font-size: 14px;
+        color: #6c757d;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        background: #F1F3F7;
+        border: 1px solid #D6D6D6;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: .25s ease;
+    }
+
+        .form-control:focus {
+            border-color: #D34E4E;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(211,78,78,.25);
+        }
+
+        .form-control[readonly] {
+            background: #ECEFF4;
+            cursor: not-allowed;
+        }
+
+    .action-links {
+        margin-top: 15px;
+    }
+
+        .action-links a {
+            color: #D34E4E;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+    .btn-primary-theme {
+        background-color: #D34E4E;
+        border: none;
+        color: white;
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        transition: .3s ease;
+    }
+
+        .btn-primary-theme:hover {
+            background-color: #D93A1D;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 20px rgba(211,78,78,0.35);
+        }
+
+    .btn-outline-theme {
+        border: 2px solid #D34E4E;
+        color: #D34E4E;
+        padding: 12px 26px;
+        border-radius: 14px;
+        font-weight: 600;
+        transition: .3s ease;
+        background: transparent;
+    }
+
+        .btn-outline-theme:hover {
+            background: #D34E4E;
+            color: #fff;
+        }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="profile-card">
+
+        <h2 class="profile-title">
+            <i class="fa-solid fa-user-pen"></i> Update Profile
+        </h2>
+
+        <p class="profile-subtitle">
+            Manage your personal details and account security
+        </p>
+
+        <form asp-action="Profile" method="post">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">User Name</label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email (Read Only)</label>
+                    <input asp-for="Email" class="form-control" readonly />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Phone Number</label>
+                    <input asp-for="PhoneNo" class="form-control" />
+                    <span asp-validation-for="PhoneNo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="action-links">
+                <a asp-controller="User" asp-action="ForgetPassword">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Forgot Password?
+                </a>
+            </div>
+
+            <div class="mt-4 d-flex gap-3">
+                <button type="submit" class="btn-primary-theme">
+                    <i class="fa-solid fa-save"></i> Save Changes
+                </button>
+
+                <a asp-controller="AdminCar"
+                   asp-action="GetAllCarList"
+                   class="btn-outline-theme">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if (TempData["ProfileError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: '@TempData["ProfileError"]',
+                        confirmButtonColor: '#D34E4E'
+                    });
+            </text>
+        }
+    </script>
+}

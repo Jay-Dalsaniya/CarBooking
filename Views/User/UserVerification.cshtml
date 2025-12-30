@@ -1,0 +1,123 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "User Verification";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>User Verification</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #d34e4e, #a73434);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+        }
+
+        .verify-box {
+            width: 500px;
+            padding: 35px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 18px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            animation: fadeUp 0.6s ease-out;
+        }
+
+            .verify-box h2 {
+                font-weight: 700;
+                margin-bottom: 20px;
+            }
+
+            .verify-box i {
+                font-size: 60px;
+                margin-bottom: 15px;
+            }
+
+        .msg-success {
+            color: #00ff9c;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .msg-error {
+            color: #ffdede;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .btn-login {
+            margin-top: 15px;
+            background: #fff;
+            color: #d34e4e;
+            font-weight: 700;
+            padding: 10px 25px;
+            border-radius: 30px;
+            transition: 0.3s ease;
+        }
+
+            .btn-login:hover {
+                transform: scale(1.07);
+                background: #f4f4f4;
+            }
+
+        @@keyframes fadeUp {
+            from
+
+        {
+            transform: translateY(40px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="verify-box">
+
+        <h2>User Email Verification</h2>
+
+        @if (ViewBag.Status == true)
+        {
+            <i class="fa-solid fa-circle-check" style="color:#00ff9c;"></i>
+
+            <div class="msg-success">
+                <strong>Success!</strong> @ViewBag.Message
+            </div>
+        }
+        else
+        {
+            <i class="fa-solid fa-circle-xmark" style="color:#ffdede;"></i>
+
+            <div class="msg-error">
+                <strong>Failed!</strong> @ViewBag.Message
+            </div>
+        }
+
+        <a href="@Url.Action("Login", "User")" class="btn btn-login">
+            <i class="fa-solid fa-right-to-bracket"></i> Go to Login
+        </a>
+
+    </div>
+
+</body>
+</html>

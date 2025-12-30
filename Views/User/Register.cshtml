@@ -1,0 +1,194 @@
+﻿@model CarBooking.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: #F4F6FA;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        padding: 40px 45px;
+        border-radius: 18px;
+        box-shadow: 0px 6px 25px rgba(0,0,0,0.08);
+        animation: fadeIn .4s ease;
+    }
+
+    .register-title {
+        font-weight: 800;
+        font-size: 30px;
+        color: #D34E4E;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .register-subtitle {
+        text-align: center;
+        color: #6c757d;
+        margin-bottom: 25px;
+        font-size: 14px;
+    }
+
+    .form-control {
+        background: #F1F3F7;
+        border: 1px solid #D6D6D6;
+        padding: 14px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: .25s ease;
+    }
+
+        .form-control:focus {
+            border-color: #D34E4E;
+            box-shadow: 0px 0px 8px rgba(255,75,43,0.25);
+            background: #fff;
+        }
+
+    .btn-register {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        background-color: #D34E4E;
+        border: none;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: 0.3s ease;
+        margin-top: 10px;
+    }
+
+        .btn-register:hover {
+            background-color: #D93A1D;
+            transform: scale(1.03);
+        }
+
+    .text-danger {
+        font-size: 12px;
+        margin-top: -5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="register-card">
+
+        <h2 class="register-title">Create Account</h2>
+        <p class="register-subtitle">Register using your email</p>
+
+        <form asp-action="Register" method="post">
+
+            <input asp-for="UserName" class="form-control" placeholder="Name" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+
+            <input asp-for="Email" class="form-control" placeholder="Email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+
+            <input asp-for="PhoneNo" class="form-control" placeholder="Phone Number" />
+            <span asp-validation-for="PhoneNo" class="text-danger"></span>
+
+            <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+
+            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm Password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+            <button type="submit" class="btn-register">Sign Up</button>
+        </form>
+
+        <p class="mt-3 text-center" style="font-size:14px; color:#555;">
+            Already have an account?
+            <a href="/User/Login" style="color:#D34E4E; font-weight:bold;">Login here</a>
+        </p>
+
+    </div>
+</div>
+@section Scripts {
+<script>
+
+$(document).ready(function () {
+
+    $("input").on("input", function () {
+        let errorSpan = $(this).next(".text-danger");
+        if (errorSpan.length) {
+            errorSpan.text("");
+        }
+    });
+
+    $("#PhoneNo").on("input", function () {
+        this.value = this.value.replace(/\D/g, "");
+    });
+
+    $("form").on("submit", function (e) {
+
+        let name = $("#UserName").val().trim();
+        let email = $("#Email").val();
+        let phone = $("#PhoneNo").val();
+        let pass = $("#Password").val();
+        let cpass = $("#ConfirmPassword").val();
+        let emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+
+        let valid = true;
+
+        if (name === "") {
+            $("span[data-valmsg-for='UserName']").text("Enter name");
+            valid = false;
+        }
+                 if (email === "") {
+                $("span[data-valmsg-for='Email']").text("Enter email");
+                valid = false;
+            } else if (!emailRegex.test(email)) {
+                $("span[data-valmsg-for='Email']").text("Enter valid email");
+                valid = false;
+            }
+
+            
+        if (phone.length !== 10) {
+            $("span[data-valmsg-for='PhoneNo']").text("Enter 10 digit number");
+            valid = false;
+        }
+
+        if (pass.length < 6) {
+            $("span[data-valmsg-for='Password']").text("Min 6 characters");
+            valid = false;
+        }
+
+        if (cpass !== pass) {
+            $("span[data-valmsg-for='ConfirmPassword']").text("Password not match");
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+
+});
+
+</script>
+}

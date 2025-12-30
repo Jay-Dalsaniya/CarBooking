@@ -1,0 +1,228 @@
+﻿@{
+    ViewData["Title"] = "Car Booking Dashboard";
+}
+@{
+    var userIsAdmin = User.IsInRole("Admin");
+    var userIsUser = User.IsInRole("User");
+}
+@{
+    Context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+}
+
+
+
+<style>
+    .page-wrapper {
+        padding: 20px 30px;
+        background: #F4F6FA;
+        animation: fadeIn .4s ease;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        border-left: 6px solid #D34E4E;
+        padding-left: 12px;
+        margin-bottom: 25px;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 18px;
+        border-radius: 14px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+
+    .chart-card {
+        background: white;
+        padding: 20px;
+        border-radius: 18px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">Car Booking Dashboard</h2>
+
+    <div class="filter-card row">
+        <div class="col-md-3">
+            <input type="date" id="startDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="endDate" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <button id="btnFilter" class="btn btn-warning w-100" style="background:#D34E4E;color:white;">Filter</button>
+        </div>
+        <div class="col-md-2">
+            <button id="clearFilters" class="btn btn-secondary w-100">Clear</button>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h5 class="mb-3 text-center">Car Bookings - Column Chart</h5>
+        <div id="bookingChartContainer" style="height: 350px; width: 100%;"></div>
+    </div>
+
+    <div class="chart-card">
+        <h5 class="mb-3 text-center">Car Bookings - Pie Chart</h5>
+        <div id="piechart" style="height: 350px; width: 100%;"></div>
+    </div>
+
+    <div class="chart-card">
+        <h5 class="mb-3 text-center">Car Bookings - Line Chart</h5>
+        <div id="bookingLineChart" style="height: 350px; width: 100%;"></div>
+    </div>
+
+    <div class="chart-card">
+        <h5 class="mb-3 text-center">Car Bookings - Area Chart</h5>
+        <div id="bookingAreaChart" style="height: 350px; width: 100%;"></div>
+    </div>
+
+</div>
+
+
+
+
+@section Scripts {
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            loadAllCharts();
+
+            $("#btnFilter").click(function () {
+                loadAllCharts();
+            });
+
+            $("#clearFilters").click(function () {
+                $("#startDate").val('');
+                $("#endDate").val('');
+                loadAllCharts();
+            });
+        });
+
+        function loadAllCharts() {
+            loadBookingChart();
+            loadBookingChartPie();
+            loadBookingLineChart();
+            loadBookingAreaChart();
+        }
+
+        function loadBookingChart() {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+            $.ajax({
+                url: "/CarBooking/GetBookingChartData",
+                type: "GET",
+                data: { startDate, endDate },
+                success: function (res) {
+                    let dataPoints = res.dates.map((d, i) => ({ label: d, y: res.bookingCounts[i] }));
+
+                    var chart = new CanvasJS.Chart("bookingChartContainer", {
+                        animationEnabled: true,
+                        theme: "light2",
+                        data: [{ type: "column", dataPoints }]
+                    });
+                    chart.render();
+                }
+            });
+        }
+
+        function loadBookingChartPie() {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+            $.ajax({
+                url: "/CarBooking/GetBookingChartDataPie",
+                type: "GET",
+                data: { startDate, endDate },
+                success: function (res) {
+                    let total = res.bookingCounts.reduce((t, n) => t + n, 0);
+
+                    let dataPoints = res.dates.map((d, i) => ({
+                        label: d,
+                        y: res.bookingCounts[i],
+                        p: ((res.bookingCounts[i] / total) * 100).toFixed(2)
+                    }));
+
+                    var chart = new CanvasJS.Chart("piechart", {
+                        animationEnabled: true,
+                        data: [{
+                            type: "pie",
+                            toolTipContent: "<b>{label}</b>: {y} bookings ({p}%)",
+                            indexLabel: "{label} - {y} ({p}%)",
+                            dataPoints
+                        }]
+                    });
+                    chart.render();
+                }
+            });
+        }
+
+        function loadBookingLineChart() {
+            $.ajax({
+                url: "/CarBooking/GetBookingChartData",
+                type: "GET",
+                data: {
+                    startDate: $("#startDate").val(),
+                    endDate: $("#endDate").val()
+                },
+                success: function (res) {
+                    let dataPoints = res.dates.map((d, i) => ({ label: d, y: res.bookingCounts[i] }));
+
+                    var chart = new CanvasJS.Chart("bookingLineChart", {
+                        animationEnabled: true,
+                        theme: "light2",
+                        data: [{ type: "line", dataPoints }]
+                    });
+                    chart.render();
+                }
+            });
+        }
+
+        function loadBookingAreaChart() {
+            $.ajax({
+                url: "/CarBooking/GetBookingChartData",
+                type: "GET",
+                data: {
+                    startDate: $("#startDate").val(),
+                    endDate: $("#endDate").val()
+                },
+                success: function (res) {
+                    let dataPoints = res.dates.map((d, i) => ({ label: d, y: res.bookingCounts[i] }));
+
+                    var chart = new CanvasJS.Chart("bookingAreaChart", {
+                        animationEnabled: true,
+                        theme: "light2",
+                        data: [{ type: "area", dataPoints }]
+                    });
+                    chart.render();
+                }
+            });
+        }
+    </script>
+}

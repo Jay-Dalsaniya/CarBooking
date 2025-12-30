@@ -1,0 +1,215 @@
+﻿@model CarBooking.ViewModels.VerifyOtpViewModel
+
+@{
+    ViewData["Title"] = "Verify OTP";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #F4F6FA, #EEF1F7);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .otp-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 35px rgba(0,0,0,0.1);
+        position: relative;
+        animation: fadeIn .4s ease;
+        text-align: center;
+    }
+
+        .otp-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #D34E4E, #ff7a7a);
+            border-radius: 20px 20px 0 0;
+        }
+
+    .otp-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        margin-bottom: 8px;
+    }
+
+    .otp-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .form-control {
+        background: #F1F3F7;
+        border: 1px solid #D6D6D6;
+        padding: 16px;
+        border-radius: 14px;
+        font-size: 18px;
+        text-align: center;
+        letter-spacing: 4px;
+        font-weight: 700;
+        transition: .25s ease;
+    }
+
+        .form-control:focus {
+            border-color: #D34E4E;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(211,78,78,.25);
+        }
+
+    .btn-primary-theme {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        background-color: #D34E4E;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        transition: .3s ease;
+        margin-top: 10px;
+    }
+
+        .btn-primary-theme:hover {
+            background-color: #D93A1D;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 20px rgba(211,78,78,0.35);
+        }
+
+    .btn-outline-theme {
+        width: 100%;
+        margin-top: 15px;
+        border: 2px solid #D34E4E;
+        color: #D34E4E;
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 600;
+        background: transparent;
+        transition: .3s ease;
+    }
+
+        .btn-outline-theme:hover {
+            background: #D34E4E;
+            color: #fff;
+        }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .helper-text {
+        font-size: 12px;
+        color: #888;
+        margin-top: 18px;
+        line-height: 1.5;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="otp-card">
+
+        <h2 class="otp-title">
+            <i class="fa-solid fa-shield-halved"></i> Verify OTP
+        </h2>
+
+        <p class="otp-subtitle">
+            Enter the 6-digit OTP sent to your email
+        </p>
+
+        <form asp-action="VerifyOtp" method="post">
+            <input type="hidden" asp-for="Email" />
+
+            <input asp-for="Otp"
+                   maxlength="6"
+                   class="form-control"
+                   placeholder="● ● ● ● ● ●" />
+
+            <span asp-validation-for="Otp" class="text-danger"></span>
+
+            <button type="submit" class="btn-primary-theme">
+                <i class="fa-solid fa-check-circle"></i> Verify OTP
+            </button>
+        </form>
+
+        <form asp-action="ResendOtp" method="post">
+            <button type="submit" class="btn-outline-theme">
+                <i class="fa-solid fa-repeat"></i> Resend OTP
+            </button>
+        </form>
+
+        <div class="helper-text">
+            OTP is valid for 10 minutes.<br />
+            Please check your inbox or spam folder.
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if (TempData["OtpEmailSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Email Sent!',
+                        text: '@TempData["OtpEmailSuccess"]',
+                        confirmButtonColor: '#D34E4E'
+                    });
+            </text>
+        }
+
+        @if (TempData["OtpSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Verified',
+                        text: '@TempData["OtpSuccess"]',
+                        confirmButtonColor: '#D34E4E'
+                    });
+            </text>
+        }
+
+        @if (TempData["OtpError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid OTP',
+                        text: '@TempData["OtpError"]',
+                        confirmButtonColor: '#D34E4E'
+                    });
+            </text>
+        }
+    </script>
+}

@@ -1,0 +1,235 @@
+﻿@{
+    ViewData["Title"] = "Setup Two-Factor Authentication";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #F4F6FA, #EEF1F7);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 35px rgba(0,0,0,0.1);
+        text-align: center;
+        position: relative;
+    }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #D34E4E, #ff7a7a);
+            border-radius: 20px 20px 0 0;
+        }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 30px;
+        color: #D34E4E;
+        margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .steps {
+        text-align: left;
+        background: #F8F9FC;
+        border-radius: 12px;
+        padding: 15px 18px;
+        margin-bottom: 25px;
+        font-size: 13px;
+        color: #555;
+    }
+
+        .steps strong {
+            color: #D34E4E;
+        }
+
+    .qr-box {
+        margin: 25px 0;
+        padding: 15px;
+        border-radius: 14px;
+        background: #fff;
+        border: 2px dashed #D34E4E;
+        display: inline-block;
+    }
+
+        .qr-box img {
+            width: 200px;
+            height: 200px;
+        }
+
+    .secret-key {
+        background: #F1F3F7;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 20px;
+        word-break: break-all;
+    }
+
+    .otp-box {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .otp-input {
+        width: 48px;
+        height: 56px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        border-radius: 12px;
+        border: 2px solid #D6D6D6;
+        background: #F1F3F7;
+        outline: none;
+        transition: 0.2s;
+    }
+
+        .otp-input:focus {
+            border-color: #D34E4E;
+            background: #fff;
+            box-shadow: 0 0 6px rgba(211,78,78,0.35);
+        }
+
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        background-color: #D34E4E;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-top: 12px;
+        transition: .3s;
+    }
+
+        .btn-login:hover {
+            background-color: #D93A1D;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 20px rgba(211,78,78,0.35);
+        }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 10px;
+        display: block;
+    }
+
+    .footer-note {
+        font-size: 12px;
+        color: #888;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="login-card">
+        <input type="hidden" name="email" value="@ViewBag.Email" />
+
+        <h2 class="login-title">Secure Your Account</h2>
+        <p class="login-subtitle">
+            Add an extra layer of security using Google Authenticator
+        </p>
+
+        <div class="steps">
+            <strong>Step 1:</strong> Open Google Authenticator<br />
+            <strong>Step 2:</strong> Scan the QR code below<br />
+            <strong>Step 3:</strong> Enter the 6-digit code
+        </div>
+
+        <div class="qr-box">
+            <img src="@ViewBag.QrCode" alt="QR Code" />
+        </div>
+
+        <div class="secret-key">
+            Manual Key (Backup):<br />
+            <span>@ViewBag.Secret</span>
+        </div>
+
+        <form asp-action="Setup2FA" method="post" id="otpForm">
+            <input type="hidden" name="code" id="otpCode" />
+
+            <div class="otp-box">
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <span class="text-danger">@ViewBag.Error</span>
+            }
+
+            <button type="submit" class="btn-login">
+                Verify & Continue
+            </button>
+        </form>
+
+        <div class="footer-note">
+            This code refreshes every 30 seconds.<br />
+            Keep your authenticator app safe.
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll(".otp-input");
+    const hiddenInput = document.getElementById("otpCode");
+
+    inputs.forEach((input, index) => {
+
+        input.addEventListener("input", () => {
+            input.value = input.value.replace(/[^0-9]/g, "");
+            if (input.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            updateCode();
+        });
+
+        input.addEventListener("keydown", e => {
+            if (e.key === "Backspace" && !input.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener("paste", e => {
+            e.preventDefault();
+            const paste = e.clipboardData.getData("text").replace(/\D/g, "");
+            paste.split("").slice(0, 6).forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
+            });
+            updateCode();
+        });
+    });
+
+    function updateCode() {
+        hiddenInput.value = Array.from(inputs).map(i => i.value).join("");
+    }
+</script>

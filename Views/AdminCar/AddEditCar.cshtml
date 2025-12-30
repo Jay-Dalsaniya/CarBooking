@@ -1,0 +1,475 @@
+﻿@model CarBooking.ViewModels.CarDetailVM
+
+@{
+    ViewData["Title"] = Model.CarId == 0 ? "Add New Car" : "Edit Car";
+}
+
+@functions {
+    string FixPath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+        return path.StartsWith("/") ? path : "/" + path;
+    }
+}
+
+<style>
+    .page-wrapper {
+        padding: 20px 30px;
+        background: #F4F6FA;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        border-left: 6px solid #D34E4E;
+        padding-left: 12px;
+        margin-bottom: 25px;
+    }
+    .car-card {
+        background: white;
+        padding: 25px;
+        border-radius: 18px;
+        box-shadow: 0px 6px 25px rgba(0,0,0,0.1);
+        animation: fadeIn 0.4s ease;
+    }
+
+        .car-card h2 {
+            font-weight: 800;
+            color: #D34E4E;
+            margin-bottom: 20px;
+            border-left: 6px solid #D34E4E;
+            padding-left: 12px;
+        }
+
+    label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 10px 14px;
+        border: 1.5px solid #ccc;
+        transition: .25s ease;
+    }
+
+        .form-control:focus {
+            border-color: #D34E4E;
+            box-shadow: 0 0 8px rgba(211,78,78,0.25);
+        }
+
+    .section-divider {
+        border-top: 2px dashed #cfcfcf;
+        margin: 30px 0;
+    }
+
+    #CarImagesPreviewContainer img,
+    #RCImagePreviewContainer img,
+    #PUCImagePreviewContainer img,
+    #InsuranceImagePreviewContainer img {
+        border-radius: 14px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        margin: 8px;
+    }
+
+    iframe {
+        border-radius: 14px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        margin: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .btn-save {
+        background-color: #D34E4E !important;
+        color: white !important;
+        padding: 12px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        transition: .25s ease;
+    }
+
+        .btn-save:hover {
+            background-color: #b93b3b !important;
+            transform: translateY(-2px);
+        }
+
+    .btn-cancel {
+        padding: 12px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: #444;
+        margin-bottom: 12px;
+        margin-top: 20px;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+
+<div class="page-wrapper">
+
+    <div class="car-card">
+
+        <h2 class="page-title">@ViewData["Title"]</h2>
+
+        <form asp-action="AddEditCar" id="addCar" method="post" enctype="multipart/form-data">
+            @if (Model.CarId > 0)
+            {
+                <input type="hidden" asp-for="CarId" />
+            }
+
+            <input type="hidden" id="ErrorMsg" value="@TempData["Error"]" />
+            <input type="hidden" id="ErrorMsg" value="@TempData["ErrorMsg"]" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="section-title">Basic Car Details</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Car Name</label>
+                    <input type="text" id="CarName" name="CarName" class="form-control" value="@Model.CarName" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Car Number</label>
+                    <input type="text" id="CarNumber" name="CarNumber" class="form-control" value="@Model.CarNumber" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Register Date</label>
+                    <input type="date" id="RegisterDate" name="RegisterDate" class="form-control"
+                           value="@Model.RegisterDate.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>PUC Expiry Date</label>
+                    <input type="date" id="PUCExpireDate" name="PUCExpireDate" class="form-control"
+                           value="@Model.PucexpireDate.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Insurance Date</label>
+                    <input type="date" id="InsuranceDate" name="InsuranceDate" class="form-control"
+                           value="@Model.InsuranceDate.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Price Per Day</label>
+                    <input type="text" id="PricePerDay" name="PricePerDay" class="form-control"
+                           oninput="this.value=this.value.replace(/[^0-9,.]/g,'');"
+                           value="@Model.PricePerDay" />
+                </div>
+            </div>
+
+
+            <hr class="section-divider" />
+
+            <div class="section-title">Document Uploads</div>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label>RC Image</label>
+                    <input type="file" id="RCImageInput" name="RCImage" class="form-control" />
+
+                    <div id="RCImagePreviewContainer" class="mt-2">
+                        @if (!string.IsNullOrEmpty(Model.RCImagePath))
+                        {
+                            var rc = FixPath(Model.RCImagePath);
+
+                            if (rc.EndsWith(".pdf"))
+                            {
+                                <iframe src="@rc" width="200" height="200"></iframe>
+                            }
+                            else
+                            {
+                                <img src="@rc" width="220" />
+                            }
+
+                            <a href="@Url.Action("DeleteCarDocument", new { carId = Model.CarId, documentType = "RC" })"
+                               class="btn btn-danger btn-sm mt-1 w-100">Remove</a>
+                        }
+                    </div>
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+                    <label>PUC Image</label>
+                    <input type="file" id="PUCImageInput" name="PUCImage" class="form-control" />
+
+                    <div id="PUCImagePreviewContainer" class="mt-2">
+                        @if (!string.IsNullOrEmpty(Model.PUCImagePath))
+                        {
+                            var puc = FixPath(Model.PUCImagePath);
+
+                            if (puc.EndsWith(".pdf"))
+                            {
+                                <iframe src="@puc" width="200" height="200"></iframe>
+                            }
+                            else
+                            {
+                                <img src="@puc" width="220" />
+                            }
+
+                            <a href="@Url.Action("DeleteCarDocument", new { carId = Model.CarId, documentType = "PUC" })"
+                               class="btn btn-danger btn-sm mt-1 w-100">Remove</a>
+                        }
+                    </div>
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+                    <label>Insurance Image</label>
+                    <input type="file" id="InsuranceImageInput" name="InsuranceImage" class="form-control" />
+
+                    <div id="InsuranceImagePreviewContainer" class="mt-2">
+                        @if (!string.IsNullOrEmpty(Model.InsuranceImagePath))
+                        {
+                            var ins = FixPath(Model.InsuranceImagePath);
+
+                            if (ins.EndsWith(".pdf"))
+                            {
+                                <iframe src="@ins" width="200" height="200"></iframe>
+                            }
+                            else
+                            {
+                                <img src="@ins" width="220" />
+                            }
+
+                            <a href="@Url.Action("DeleteCarDocument", new { carId = Model.CarId, documentType = "Insurance" })"
+                               class="btn btn-danger btn-sm mt-1 w-100">Remove</a>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+
+            <hr class="section-divider" />
+
+
+            <div class="section-title">Car Gallery Images</div>
+
+            <div class="mb-3">
+                <input type="file" class="form-control" id="CarAllImagesInput" name="CarAllImages" multiple />
+
+                <div id="CarImagesPreviewContainer" class="mt-3">
+                    @foreach (var img in Model.SavedCarImages)
+                    {
+                        var path = FixPath(img.ImagePath);
+
+                        if (path.EndsWith(".pdf"))
+                        {
+                            <iframe src="@path" width="200" height="200"></iframe>
+                        }
+                        else
+                        {
+                            <img src="@path" width="220" class="m-1" />
+                        }
+
+                        <a href="/AdminCar/DeleteCarImage/@img.ImageId" class="btn btn-danger btn-sm mt-1">Remove</a>
+                    }
+                </div>
+            </div>
+
+
+            <button type="submit" class="btn btn-save mt-4">Save</button>
+            <a href="/AdminCar/GetAllCarList" class="btn btn-secondary btn-cancel mt-4">Cancel</a>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js"></script>
+
+
+    <script>
+
+        let allSelectedImages = [];
+
+        function previewFile(input, previewId) {
+
+            const container = document.getElementById(previewId);
+            const newFiles = Array.from(input.files);
+
+            newFiles.forEach(file => {
+
+                allSelectedImages.push(file);
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+
+                    const wrapper = document.createElement("div");
+                    wrapper.classList.add("img-wrapper", "m-1");
+                    wrapper.dataset.filename = file.name;
+
+                    let html = "";
+
+                    if (file.type.startsWith("image/")) {
+                        html = `<img src="${e.target.result}" width="250" class="img-thumbnail" />`;
+                    } else if (file.type === "application/pdf") {
+                        html = `<iframe src="${e.target.result}" width="250" height="250"></iframe>`;
+                    }
+
+                    wrapper.innerHTML = `
+                        ${html}
+                        <button type="button" class="btn btn-danger btn-sm w-100 mt-1 remove-img">
+                            Remove
+                        </button>
+                    `;
+
+                    container.appendChild(wrapper);
+
+                    wrapper.querySelector(".remove-img").addEventListener("click", function () {
+                        wrapper.remove();
+                        allSelectedImages = allSelectedImages.filter(f => f.name !== file.name);
+                    });
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            input.value = "";
+        }
+
+        document.getElementById("CarAllImagesInput").addEventListener("change", function () {
+            previewFile(this, "CarImagesPreviewContainer");
+        });
+
+        function previewSingle(input, previewId) {
+            const container = document.getElementById(previewId);
+            container.innerHTML = "";
+
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+
+                let html = file.type.startsWith("image/")
+                    ? `<img src="${e.target.result}" width="250" class="img-thumbnail" />`
+                    : `<iframe src="${e.target.result}" width="250" height="250"></iframe>`;
+
+                container.innerHTML = html + `
+                    <button type="button" class="btn btn-danger btn-sm mt-1 w-100" id="remove_${previewId}">
+                        Remove
+                    </button>
+                `;
+
+                document.getElementById(`remove_${previewId}`).addEventListener("click", () => {
+                    container.innerHTML = "";
+                    input.value = "";
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById("RCImageInput").addEventListener("change", () => {
+            previewSingle(RCImageInput, "RCImagePreviewContainer");
+        });
+        document.getElementById("PUCImageInput").addEventListener("change", () => {
+            previewSingle(PUCImageInput, "PUCImagePreviewContainer");
+        });
+        document.getElementById("InsuranceImageInput").addEventListener("change", () => {
+            previewSingle(InsuranceImageInput, "InsuranceImagePreviewContainer");
+        });
+
+
+        $("#addCar").submit(function (e) {
+            e.preventDefault();
+
+            let errors = [];
+
+            if ($("#CarName").val().trim() === "") errors.push("Car Name is required");
+            if ($("#CarNumber").val().trim() === "") errors.push("Car Number is required");
+            if ($("#RegisterDate").val() === "") errors.push("Register Date is required");
+            if ($("#PUCExpireDate").val() === "") errors.push("PUC Expiry Date is required");
+            if ($("#InsuranceDate").val() === "") errors.push("Insurance Date is required");
+
+            let price = $("#PricePerDay").val().trim();
+            if (price === "" || Number(price) <= 0) errors.push("Valid Price Per Day is required");
+
+            if ($("#RCImageInput")[0].files.length === 0 &&
+                $("#RCImagePreviewContainer img").length === 0 &&
+                $("#RCImagePreviewContainer iframe").length === 0) {
+                errors.push("RC Image is required.");
+            }
+
+            if ($("#PUCImageInput")[0].files.length === 0 &&
+                $("#PUCImagePreviewContainer img").length === 0 &&
+                $("#PUCImagePreviewContainer iframe").length === 0) {
+                errors.push("PUC Image is required.");
+            }
+
+            if ($("#InsuranceImageInput")[0].files.length === 0 &&
+                $("#InsuranceImagePreviewContainer img").length === 0 &&
+                $("#InsuranceImagePreviewContainer iframe").length === 0) {
+                errors.push("Insurance Image is required.");
+            }
+
+
+            let existingCarImagesCount = $("#CarImagesPreviewContainer img").length || $("#CarImagesPreviewContainer iframe").length;
+            let newUploadedImagesCount = $("#CarAllImagesInput")[0].files.length;
+            let totalCarImages = existingCarImagesCount + newUploadedImagesCount;
+
+            if (existingCarImagesCount < 2)
+                errors.push("Please upload at least 2 Car Images.");
+            if (errors.length > 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Validation Error",
+                    html: errors.join("<br>")
+                });
+                return false;
+            }
+
+            const dt = new DataTransfer();
+            allSelectedImages.forEach(file => dt.items.add(file));
+            document.getElementById("CarAllImagesInput").files = dt.files;
+
+            let carNumber = $("#CarNumber").val();
+            let carId = $("#CarId").val() || 0;
+
+            $.ajax({
+                url: "/AdminCar/CheckCarNumber",
+                type: "GET",
+                data: { carNumber: carNumber, carId: carId },
+                success: function (res) {
+
+                    if (res.existsCarNumber) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Duplicate Car Number",
+                            text: "This Car Number already exists!"
+                        });
+                        return false;
+                    }
+
+                    $("#addCar")[0].submit();
+                }
+            });
+        });
+    </script>
+    }

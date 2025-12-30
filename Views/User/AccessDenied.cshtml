@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Access Denied</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #d34e4e, #a73434);
+            height: 100vh;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+        }
+
+        .denied-box {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 45px;
+            width: 480px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            animation: fadeUp 0.7s ease-out;
+        }
+
+            .denied-box i {
+                font-size: 70px;
+                color: #FFD700;
+                margin-bottom: 15px;
+                animation: pulseIcon 1.4s infinite ease-in-out;
+            }
+
+            .denied-box h1 {
+                font-size: 55px;
+                font-weight: 800;
+            }
+
+            .denied-box p {
+                font-size: 17px;
+                opacity: 0.95;
+                margin-bottom: 20px;
+            }
+
+        .btn-home {
+            background: #fff;
+            color: #d34e4e;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 10px 25px;
+            transition: 0.3s;
+        }
+
+            .btn-home:hover {
+                transform: scale(1.08);
+                background: #f8f9fa;
+            }
+
+        @@keyframes fadeUp {
+            from
+
+        {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes pulseIcon {
+            0%
+
+        {
+            transform: scale(1);
+            opacity: 0.9;
+        }
+
+        100% {
+            transform: scale(1.15);
+            opacity: 1;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="denied-box">
+        <i class="fa-solid fa-car-burst"></i>
+
+        <h1>403</h1>
+        <h3 class="mt-2">Access Denied</h3>
+
+        <p>
+            You do not have permission to access this page.<br />
+            If this is an error, please contact the administrator.
+        </p>
+
+        <a href="/User/Login" class="btn btn-home">
+            <i class="fa-solid fa-right-to-bracket"></i> Go to Login
+        </a>
+    </div>
+
+</body>
+</html>

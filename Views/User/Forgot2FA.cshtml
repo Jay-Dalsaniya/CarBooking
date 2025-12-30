@@ -1,0 +1,148 @@
+﻿@model CarBooking.ViewModels.Forgot2FAViewModel
+@{
+    ViewData["Title"] = "Recover Two-Factor Authentication";
+}
+
+<style>
+    .page-wrapper {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #F4F6FA, #EEF1F7);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 35px rgba(0,0,0,0.1);
+        text-align: center;
+        position: relative;
+        animation: fadeIn .4s ease;
+    }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #D34E4E, #ff7a7a);
+            border-radius: 20px 20px 0 0;
+        }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 28px;
+        color: #D34E4E;
+        margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .form-control {
+        background: #F1F3F7;
+        border: 1px solid #D6D6D6;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 15px;
+        margin-bottom: 12px;
+        transition: .25s ease;
+    }
+
+        .form-control:focus {
+            border-color: #D34E4E;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(211,78,78,.25);
+        }
+
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        background-color: #D34E4E;
+        border: none;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        margin-top: 10px;
+        transition: .3s ease;
+    }
+
+        .btn-login:hover {
+            background-color: #D93A1D;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 20px rgba(211,78,78,0.35);
+        }
+
+    .text-danger {
+        font-size: 13px;
+        margin-top: 10px;
+        display: block;
+    }
+
+    .helper-text {
+        font-size: 12px;
+        color: #888;
+        margin-top: 18px;
+        line-height: 1.5;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="login-card">
+
+        <h2 class="login-title">Recover Two-Factor Authentication</h2>
+
+        <p class="login-subtitle">
+            Lost access to your Google Authenticator?<br />
+            Enter your registered email to receive a recovery OTP.
+        </p>
+
+        <form asp-action="Forgot2FA" method="post" novalidate>
+
+            <input asp-for="Email"
+                   class="form-control"
+                   placeholder="Registered email address" />
+
+            <span asp-validation-for="Email" class="text-danger"></span>
+
+            <button type="submit" class="btn-login">
+                Send Recovery OTP
+            </button>
+        </form>
+
+
+        <div class="helper-text">
+            A 6-digit OTP will be sent to your email.<br />
+            This OTP is valid for 10 minutes.
+        </div>
+
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
