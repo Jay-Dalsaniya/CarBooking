@@ -138,12 +138,21 @@ LICENSE
 This project is developed for learning and portfolio purposes.
 
 
-CAR BOOKING DATABASE SCRIPT
-===========================
+CAR BOOKING MANAGEMENT SYSTEM
+=============================
 
---------------------------------------------------
+------------------------------------------------------------
+DATABASE SQL SCRIPT
+------------------------------------------------------------
+
+NOTE:
+This SQL script creates all required tables for the
+Car Booking Management System.
+Execute this script in SQL Server Management Studio (SSMS).
+
+------------------------------------------------------------
 CREATE DATABASE
---------------------------------------------------
+------------------------------------------------------------
 
 CREATE DATABASE CarBooking;
 GO
@@ -151,9 +160,9 @@ GO
 USE CarBooking;
 GO
 
---------------------------------------------------
+------------------------------------------------------------
 USER TABLE
---------------------------------------------------
+------------------------------------------------------------
 
 CREATE TABLE [User] (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
@@ -173,9 +182,9 @@ CREATE TABLE [User] (
     TwoFactorSecret NVARCHAR(100) NULL
 );
 
---------------------------------------------------
+------------------------------------------------------------
 CAR DETAIL TABLE
---------------------------------------------------
+------------------------------------------------------------
 
 CREATE TABLE CarDetail (
     CarId INT IDENTITY(1,1) PRIMARY KEY,
@@ -198,9 +207,9 @@ CREATE TABLE CarDetail (
     IsDelete BIT NOT NULL DEFAULT 0
 );
 
---------------------------------------------------
+------------------------------------------------------------
 CAR IMAGE TABLE
---------------------------------------------------
+------------------------------------------------------------
 
 CREATE TABLE CarImages (
     ImageId INT IDENTITY(1,1) PRIMARY KEY,
@@ -209,13 +218,12 @@ CREATE TABLE CarImages (
     OriginalFileName NVARCHAR(255) NOT NULL,
     CreatedDate DATETIME DEFAULT GETDATE(),
     IsDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_CarImages_CarDetail
-        FOREIGN KEY (CarId) REFERENCES CarDetail(CarId)
+    FOREIGN KEY (CarId) REFERENCES CarDetail(CarId)
 );
 
---------------------------------------------------
+------------------------------------------------------------
 CAR BOOKING DETAIL TABLE
---------------------------------------------------
+------------------------------------------------------------
 
 CREATE TABLE CarBookingDetail (
     CarBookingId INT IDENTITY(1,1) PRIMARY KEY,
@@ -229,12 +237,11 @@ CREATE TABLE CarBookingDetail (
     UpdatedDate DATETIME NULL,
     IsDelete BIT NOT NULL DEFAULT 0,
     UpdateBy INT NULL,
-    CONSTRAINT FK_CarBookingDetail_User
-        FOREIGN KEY (UserId) REFERENCES [User](UserId),
-    CONSTRAINT FK_CarBookingDetail_CarDetail
-        FOREIGN KEY (CarId) REFERENCES CarDetail(CarId)
+    FOREIGN KEY (UserId) REFERENCES [User](UserId),
+    FOREIGN KEY (CarId) REFERENCES CarDetail(CarId)
 );
 
---------------------------------------------------
-END OF SCRIPT
---------------------------------------------------
+------------------------------------------------------------
+END OF SQL SCRIPT
+------------------------------------------------------------
+
